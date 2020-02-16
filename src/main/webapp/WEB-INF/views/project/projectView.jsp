@@ -590,7 +590,7 @@ function setting(){
             <c:forEach items="${inMemList}" var="m">
             <a href="${pageContext.request.contextPath}/member/memberView.do?memberId=${m.memberId}" class="dropdown-item">
                 <div class="media">
-	                <img src="${pageContext.request.contextPath}/resources/img/profile/${m.renamedFileName}" alt="User Avatar" class="img-circle img-profile ico-profile">
+	                <img src="${pageContext.request.contextPath}/resources/img/${m.renamedFileName}" alt="User Avatar" class="img-circle img-profile ico-profile">
 	                <div class="media-body">
 	                    <p class="memberName">${m.memberName}</p>
 	                </div>
@@ -775,7 +775,7 @@ function setting(){
 				                		<th><button type="button" class="btn-check"><i class="fas fa-check-square"></i></button></th>
 				                        <td style="text-decoration:line-through;">
 				                        	<c:if test="${chk.checklistChargedMemberId!=null}">
-				                            <img src="${pageContext.request.contextPath}/resources/img/profile/${m.renamedFileName}" alt="User Avatar" class="img-circle img-profile ico-profile" title="${m.memberName}">
+				                            <img src="${pageContext.request.contextPath}/resources/img/${m.renamedFileName}" alt="User Avatar" class="img-circle img-profile ico-profile" title="${m.memberName}">
 				                            </c:if>
 				                            ${chk.checklistContent}
 				                        </td>
@@ -786,7 +786,7 @@ function setting(){
 			                        	<th><button type="button" class="btn-check"><i class="far fa-square"></i></button></th>
 				                        <td>
 				                        	<c:if test="${chk.checklistChargedMemberId!=null}">
-				                            <img src="${pageContext.request.contextPath}/resources/img/profile/default.jpg" alt="User Avatar" class="img-circle img-profile ico-profile" title="${m.memberName}">
+				                            <img src="${pageContext.request.contextPath}/resources/img/default.jpg" alt="User Avatar" class="img-circle img-profile ico-profile" title="${m.memberName}">
 				                            </c:if>
 				                            ${chk.checklistContent}
 				                        </td>
@@ -854,7 +854,7 @@ function setting(){
 	                    <c:if test="${w.workChargedMemberList!=null && !empty w.workChargedMemberList}">
 	                    <div class="chared-member text-right">
 	                    <c:forEach items="${w.workChargedMemberList}" var="m">
-		                    <img src="${pageContext.request.contextPath}/resources/img/profile/${m.renamedFileName}" alt="User Avatar" class="img-circle img-profile ico-profile" title="${m.memberName}">
+		                    <img src="${pageContext.request.contextPath}/resources/img/${m.renamedFileName}" alt="User Avatar" class="img-circle img-profile ico-profile" title="${m.memberName}">
 	                    </c:forEach>
 	                    </div>
 	                    </c:if>

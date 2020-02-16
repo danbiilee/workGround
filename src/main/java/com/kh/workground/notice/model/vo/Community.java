@@ -2,6 +2,7 @@ package com.kh.workground.notice.model.vo;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,8 +29,10 @@ public class Community implements Serializable{
 	private Date commuDate;
 	private String commuOriginalFileName;
 	private String commuRenamedFileName;
-	private String memberName; //view_communityMember 이용해서 조회
-	private String renamedFileName; //프로필사진: view_communityMember 이용해서 조회
+	
+	//view_commuMemberCommuComment (community + member + community_comment 테이블)
+	private String memberName; 
+	private String renamedFileName; 
+	private List<CommunityComment> communityCommentList;
 
 }
-

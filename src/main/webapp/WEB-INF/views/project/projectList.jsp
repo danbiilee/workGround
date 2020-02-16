@@ -184,7 +184,7 @@ function sortByStatus(statusCodeElem){
         <!-- 중요 표시된 프로젝트 -->
         <section id="project-important">
             <div class="card-header" role="button" tabindex="0" onclick="toggleList(this);">
-            	<h3><i class="fas fa-chevron-down"></i> <i class="fas fa-star"></i> 중요 표시된 프로젝트 <span class="header-count" id="important-count">(${fn:length(listByImportant)})</span></h3>
+            <h3><i class="fas fa-chevron-down"></i> <i class="fas fa-star"></i> 중요 표시된 프로젝트 <span class="header-count" id="important-count">(${fn:length(listByImportant)})</span></h3>
             </div><!-- /.card-header -->
             <div class="row card-content" id="project-important-content">
             
@@ -192,31 +192,31 @@ function sortByStatus(statusCodeElem){
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="card card-hover">
                     <a href="${pageContext.request.contextPath}/project/projectView.do?projectNo=${p.projectNo}">
-                    <div class="card-body star-body">
+                    <div class="card-body">
                         <!-- 타이틀 -->
                         <div class="card-title">
-                        	<h5>${p.projectTitle}</h5>
+                        <h5>${p.projectTitle}</h5>
                         </div>
                         <!-- 중요표시 -->
                         <div class="card-star text-right">
-                        	<i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
                         </div>
                         <!-- 프로젝트 상태 / 마감일 -->
                         <div class="card-status">
-                        	<span class="btn btn-block btn-sm bg-${p.projectStatusColor}">${p.projectStatusTitle}</span>
-	                        <span class="end-date">
-	                        	<c:if test="${p.projectEndDate!=null}">
-	                        	<i class="far fa-calendar-alt"></i> 
-	                        	</c:if>
-	                        	${p.projectEndDate}
-	                        </span>
+                        <span class="btn btn-block btn-sm bg-${p.projectStatusColor}">${p.projectStatusTitle}</span>
+                        <span class="end-date">
+                        	<c:if test="${p.projectEndDate!=null}">
+                        	<i class="far fa-calendar-alt"></i> 
+                        	</c:if>
+                        	${p.projectEndDate}
+                        </span>
                         </div>
                         <div class="progress-group card-progress">
-	                        <span class="progress-title"><span class="percent">11%</span> 완료</span>
-	                        <span class="progress-title float-right"><span>1</span>/<span>9</span> 개 업무</span>
-	                        <div class="progress progress-sm">
-	                            <div class="progress-bar bg-info" style="width: 11%"></div>
-	                        </div>
+                        <span class="progress-title"><span class="percent">11%</span> 완료</span>
+                        <span class="progress-title float-right"><span>1</span>/<span>9</span> 개 업무</span>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar bg-info" style="width: 11%"></div>
+                        </div>
                         </div>
                     </div>
                     </a>
@@ -230,17 +230,21 @@ function sortByStatus(statusCodeElem){
         <!-- 내가 속한 프로젝트 -->
         <section id="project-in">
             <div class="card-header" role="button" tabindex="0" onclick="toggleList(this);">
-            	<h3><i class="fas fa-chevron-down"></i> 내가 속한 프로젝트 <span class="header-count" id="include-count">(${fn:length(listByInclude)})</span></h3>
+            <h3><i class="fas fa-chevron-down"></i> 내가 속한 프로젝트 <span class="header-count" id="include-count">(${fn:length(listByInclude)})</span></h3>
             </div><!-- /.card-header -->
             <div class="row card-content" id="project-include-content">
-            
             <!-- 내 업무 -->
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="card card-hover mywork">
                     <a href="${pageContext.request.contextPath}/project/projectView.do?projectNo=${listByInclude[0].projectNo}">
                     <div class="card-body">
                         <!-- 프로필 사진 -->
-                        <img src="${pageContext.request.contextPath}/resources/img/profile/${memberLoggedIn.renamedFileName}" alt="User Avatar" class="img-circle img-profile">
+                        <%-- <c:if test="${listByInclude[0].originalFileName==null}">
+                        <img src="${pageContext.request.contextPath}/resources/img/user1-128x128.jpg" alt="User Avatar" class="img-circle img-profile">
+                        </c:if>
+                        <c:if test="${listByInclude[0].originalFileName!=null}"> --%>
+                        <img src="${pageContext.request.contextPath}/resources/img/profile.jfif" alt="User Avatar" class="img-circle img-profile">
+                        <%-- </c:if> --%>
                         <!-- 타이틀 -->
                         <div class="card-title text-center"><h5>${listByInclude[0].projectTitle}</h5></div>
                         <!-- 프로젝트 상태  -->
@@ -261,23 +265,15 @@ function sortByStatus(statusCodeElem){
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="card card-hover">
                 <a href="${pageContext.request.contextPath}/project/projectView.do?projectNo=${p.projectNo}">
-                <c:if test="${p.projectStarYn=='Y'}">
-                    <div class="card-body star-body">
-                </c:if>
-                <c:if test="${p.projectStarYn=='N'}">
                     <div class="card-body">
-                </c:if>
                     <!-- 타이틀 -->
                     <div class="card-title">
                         <h5>${p.projectTitle}</h5>
                     </div>
 
                     <!-- 중요표시 -->
-                    <c:if test="${p.projectStarYn=='Y'}">
                     <div class="card-star text-right">
-                    	<i class="fas fa-star"></i>
                     </div>
-                    </c:if>
 
                     <!-- 프로젝트 상태 / 마감일 -->
                     <div class="card-status">

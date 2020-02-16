@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project">
+	
+	<!-- ########################단비############################# -->
+	<resultMap type="project" id="viewProjectMemberCollectionMap">
+		<id column="project_no" property="projectNo"></id>
+		<result column="project_writer" property="projectWriter"></result>
+		<result column="project_title" property="projectTitle"></result>
+		<result column="private_yn" property="projectYn"></result>
+		<result column="project_desc" property="projectDesc"></result>
+		<result column="project_startdate" property="projectStartDate"></result>
+		<result column="project_enddate" property="projectEndDate"></result>
+		<result column="project_realenddate" property="projectRealEndDate"></result>
+		<result column="project_status_code" property="projectStatusCode"></result>
+		<result column="project_status_title" property="projectStatusTitle"></result>
+		<result column="project_status_color" property="projectStatusColor"></result>
+		<collection property="projectMemberList" ofType="member">
+			<id column="member_id" property="memberId"></id>
+			<result column="password" property="password"></result>
+			<result column="member_name" property="memberName"></result>
+			<result column="email" property="email"></result>
+			<result column="phone" property="phone"></result>
+			<result column="date_of_birth" property="dateOfBirth"></result>
+			<result column="dept_code" property="deptCode"></result>
+			<result column="dept_title" property="deptTitle"></result>
+			<result column="job_code" property="jobCode"></result>
+			<result column="job_title" property="jobTitle"></result>
+			<result column="quit_yn" property="quitYn"></result>
+			<result column="manager_id" property="managerId"></result>
+			<result column="original_filename" property="originalFileName"></result>
+			<result column="renamed_filename" property="renamedFileName"></result>
+		</collection>
+	</resultMap>
+	
+	<!-- projectList.do : 부서 사람들 조회 -->
+	<select id="selectMemberListByDept" resultType="member">
+		select * from view_member where dept_code = #{deptCode} order by member_id
+	</select>
+	
+	<!-- projectList.do : 부서 전체 프로젝트(최근 프로젝트) 조회 -->
+	<select id="selectListByDept" resultMap="viewProjectMemberCollectionMap">
+		select * from view_projectMember where private_yn = 'N' and dept_code = #{deptCode}
+	</select>
+	
+	<!-- projectList.do : 중요 표시된 프로젝트 조회 -->
+	<select id="selectListByImportant" resultMap="viewProjectMemberCollectionMap">
+		select * 
+		from project_important PI join view_projectMember P on PI.project_no = P.project_no
+		where PI.member_id = #{memberId}
+	</select>
+	
+	<!-- projectList.do : 내 워크패드 조회 -->
+	<select id="selectMyProject" resultType="project">
+		select * from view_projectMember
+		where private_yn = 'Y' and project_writer = #{memberId}
+	</select>
+	
+	<!-- projectView.do : 프로젝트 조회 -->
+	<select id="selectProjectOne" resultMap="viewProjectMemberCollectionMap">
+		select * from view_projectMember where project_no = #{projectNo}
+	</select>
+	
+	<!-- projectView.do : 프로젝트 번호로 업무리스트 조회 -->
+	<select id="selectWorklistListbyProjectNo" resultType="worklist">
+		select * from worklist where project_no = #{projectNo} order by worklist_no
+	</select>
+	
+	<!-- projectView.do : 업무리스트 번호로 업무 리스트 조회 -->
+	<select id="selectWorkListByWorklistNo" resultMap="workListCollectionMap">
+		select V.*, WCM.work_charged_members_no, VM.*
+		from (select * from view_workTag where worklist_no = #{worklistNo} 
+         		order by work_no desc) V left join work_charged_members WCM on V.work_no = WCM.work_no
+                                         left join view_member VM on WCM.charged_member_id = VM.member_id
+	</select>
+	<resultMap type="work" id="workListCollectionMap">
+		<id column="work_no" property="workNo"></id>
+		<result column="work_title" property="workTitle"></result>
+		<result column="work_desc" property="workDesc"></result>
+		<result column="work_point" property="workPoint"></result>
+		<result column="work_startdate" property="workStartDate"></result>
+		<result column="work_enddate" property="workEndDate"></result>
+		<result column="work_realenddate" property="workRealEndDate"></result>
+		<result column="work_complete_yn" property="workCompleteYn"></result>
+		<result column="work_tag_code" property="workTagCode"></result>
+		<result column="work_tag_title" property="workTagTitle"></result>
+		<result column="work_tag_color" property="workTagColor"></result>
+		<result column="work_no_ref" property="workNoRef"></result>
+		<collection property="workChargedMemberList" ofType="member">
+			<id column="member_id" property="memberId"></id>
+			<result column="password" property="password"></result>
+			<result column="member_name" property="memberName"></result>
+			<result column="email" property="email"></result>
+			<result column="phone" property="phone"></result>
+			<result column="date_of_birth" property="dateOfBirth"></result>
+			<result column="dept_code" property="deptCode"></result>
+			<result column="dept_title" property="deptTitle"></result>
+			<result column="job_code" property="jobCode"></result>
+			<result column="job_title" property="jobTitle"></result>
+			<result column="quit_yn" property="quitYn"></result>
+			<result column="manager_id" property="managerId"></result>
+			<result column="original_filename" property="originalFileName"></result>
+			<result column="renamed_filename" property="renamedFileName"></result>
+		</collection>
+	</resultMap>
+	
+	<!-- projectView.do : 업무번호로 체크리스트 조회 -->
+	<select id="selectChklstListByWorkNo" resultMap="checklistMap">
+		select C.*, WM.charged_member_id
+		from checklist C join work_charged_members WM on C.checklist_charged_members_no = WM.work_charged_members_no
+		where C.work_no = #{workNo}
+		order by checklist_no
+	</select>
+	<resultMap type="checklist" id="checklistMap">
+		<result column="charged_member_id" property="checklistChargedMemberId"></result>
+	</resultMap>
+	
+	<!-- projectView.do : 업무번호로 첨부파일 조회 -->
+	<select id="selectAttachListByWorkNo" resultMap="attachmentMap">
+		select A.*, PM.member_id
+		from attachment A join project_members PM on A.attachment_writer_no = PM.project_members_no
+		where A.work_no = #{workNo}
+		order by A.attachment_no desc
+	</select>
+	<resultMap type="attachment" id="attachmentMap">
+		<result column="member_id" property="attachmentWriterId"></result>
+	</resultMap>
+	
+	<!-- projectView.do : 업무번호로 코멘트 조회 -->
+	<select id="selectCommentListByWorkNo" resultMap="workCommentMap">
+		select WC.*, PM.member_id
+		from work_comment WC join project_members PM on WC.work_comment_writer_no = PM.project_members_no
+		where WC.work_no = #{workNo}
+		order by WC.work_comment_no
+	</select>
+	<resultMap type="workComment" id="workCommentMap">
+		<result column="member_id" property="workCommentWriterId"></result>
+	</resultMap>
+	
+	<!-- projectView.do : 아이디로 멤버 조회 -->
+	<select id="selectMemberOneByMemberId" resultType="member">
+		select * from view_member where member_id = #{memberId}
+	</select>
+	
+	<!-- projectView.do : 업무리스트번호로 진행 중인 업무 수 조회 -->
+	<select id="selectTotalWorkCompleteYn" resultType="_int">
+		select count(*) total_work_complete_yn
+		from worklist WL left join Work W on WL.worklist_no = W.worklist_no
+		where WL.worklist_no = #{worklistNo} and W.work_complete_yn = 'N'
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- ########################혜민############################# -->
+	<!-- 프로젝트 생성 -->
+	<insert id="insertProject" parameterType="project">
+		insert into project
+		values(seq_project.nextval,#{projectWriter},#{projectTitle},default,#{projectDesc},default,null,null,null)
+		<selectKey keyProperty="projectNo" resultType="_int" order="AFTER">
+			select seq_project.currval from dual
+		</selectKey>
+	</insert>
+	
+	<!-- 프로젝트팀원 테이블에 팀장 추가 -->
+	<insert id="insertProjectManager" parameterType="project">
+		insert into project_members
+		values(seq_project_members.nextval,#{projectNo},#{projectWriter},'Y')
+	</insert>
+	
+	<!-- 프로젝트팀원 테이블에 팀원 추가 -->
+	<insert id="insertProjectMember">
+		insert into project_members
+		values(seq_project_members.nextval,to_number(#{projectNo}),#{projectMember},default)
+	</insert>
+	
+	<!-- 프로젝트 생성 시 기본 3개 업무리스트 추가 -->
+	<insert id="insertDefaultWorkList" parameterType="java.util.Map">
+		insert into worklist(worklist_no,project_no,worklist_title)
+		select seq_worklist.nextval, A.* from(
+		<foreach item="item" collection = "worklistTitle" separator="UNION ALL " >
+		select #{projectNo} as project_no, #{item} as worklist_title from dual
+		</foreach>)A
+	</insert>
+	
+	<!-- projectDeptMember.do : 부서 사람들 조회 -->
+	<select id="selectMemberListByDeptCode" resultType="member">
+		select * from view_member where dept_code = #{deptCode} and member_id!=#{memberId} order by member_id
+	</select>
+	
+	<!-- projectListByStatusCode.do : 상태코드별 부서 전체 프로젝트(최근 프로젝트) 조회 -->
+	<select id="selectListByDeptAndStatusCode" resultMap="viewProjectMemberCollectionMap">
+		select * from view_projectMember where private_yn = 'N' and dept_code = #{memberLoggedIn.deptCode}
+		<if test="statusCode !='' and statusCode != null">
+		and project_status_code = #{statusCode}
+		</if>
+		<if test="!(statusCode !='' and statusCode != null)">
+		and project_status_code is null
+		</if>
+	</select>
+	
+	<!-- projectListByStatusCode.do : 상태코드별 중요 표시된 프로젝트 조회 -->
+	<select id="selectListByImportantAndStatusCode" resultMap="viewProjectMemberCollectionMap">
+		select * 
+		from project_important PI join view_projectMember P on PI.project_no = P.project_no
+		where PI.member_id = #{memberLoggedIn.memberId}
+		<if test="statusCode !='' and statusCode != null">
+		and P.project_status_code = #{statusCode}
+		</if>
+		<if test="!(statusCode !='' and statusCode != null)">
+		and P.project_status_code is null
+		</if>
+	</select>
+	
+</mapper>

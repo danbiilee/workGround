@@ -1,6 +1,7 @@
 package com.kh.workground.notice.model.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import com.kh.workground.notice.model.vo.Community;
 import com.kh.workground.notice.model.vo.Notice;
@@ -29,5 +30,14 @@ public interface NoticeDAO {
 
 	int updateCommunity(Community commu);
 	
+	int insertNoticeComment(Map<String, Object> noticeCommentMap);
+
+	int deleteNoticeComment(int noticeCommentNo);
+
+	int insertCommunityComment(Map<String, Object> communityCommentMap);
+
+	int deleteCommunityComment(int communityCommentNo);
+	
 	
 }
+

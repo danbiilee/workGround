@@ -3,13 +3,58 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="notice">
-	<resultMap type="notice" id="noticeMap">
-	</resultMap>
 
-	<resultMap type="community" id="communityMap">
+	<!-- 공지 + 공지댓글 -->
+	<resultMap type="notice" id="noticeMap">
+ 		<id column="notice_no" property="noticeNo"/>
+		<result column="notice_writer" property="noticeWriter"/>
+		<result column="notice_title" property="noticeTitle"/>
+		<result column="notice_date" property="noticeDate"/>
+		<result column="notice_content" property="noticeContent"/>
+		<result column="notice_original_filename" property="noticeOriginalFileName"/>
+		<result column="notice_renamed_filename" property="noticeRenamedFileName"/>
+		<result column="dept_code" property="deptCode"/>
+		<result column="member_name" property="memberName"/>
+		<result column="renamed_filename" property="renamedFileName"/>
+		<collection property="noticeCommentList" ofType="noticeComment">
+			<id column="notice_comment_no" property="noticeCommentNo"></id>	
+			<result column="notice_ref" property="noticeRef"></result>
+			<result column="notice_comment_level" property="noticeCommentLevel"></result>
+			<result column="notice_comment_writer" property="noticeCommentWriter"></result>
+			<result column="notice_comment_content" property="noticeCommentContent"></result>
+			<result column="notice_comment_date" property="noticeCommentDate"></result>
+			<result column="notice_comment_ref" property="noticeCommentRef"></result>
+			<result column="comment_writer_name" property="commentWriterName"/>
+			<result column="comment_writer_profile" property="commentWriterProfile"/>
+		</collection>
 	</resultMap>
 	
-	<select id="selectNoticeList" resultMap="noticeMap">
+	<!-- 게시판 + 댓글 -->
+	<resultMap type="community" id="communityMap">
+ 		<id column="commu_no" property="commuNo"/>
+		<result column="commu_writer" property="commuWriter"/>
+		<result column="commu_title" property="commuTitle"/>
+		<result column="commu_content" property="commuContent"/>
+		<result column="commu_date" property="commuDate"/>
+		<result column="commu_original_filename" property="commuOriginalFileName"/>
+		<result column="commu_renamed_filename" property="commuRenamedFileName"/>
+		<result column="member_name" property="memberName"/>
+		<result column="renamed_filename" property="renamedFileName"/>
+		<collection property="communityCommentList" ofType="communityComment">
+			<id column="commu_comment_no" property="commuCommentNo"></id>	
+			<result column="commu_ref" property="commuRef"></result>
+			<result column="commu_comment_level" property="commuCommentLevel"></result>
+			<result column="commu_comment_writer" property="commuCommentWriter"></result>
+			<result column="commu_comment_content" property="commuCommentContent"></result>
+			<result column="commu_comment_date" property="commuCommentDate"></result>
+			<result column="commu_comment_ref" property="commuCommentRef"></result>
+			<result column="comment_writer_name" property="commentWriterName"/>
+			<result column="comment_writer_profile" property="commentWriterProfile"/>
+		</collection>
+	</resultMap>
+
+	
+<!-- 	<select id="selectNoticeList" resultMap="noticeMap">
 		select * from notice where dept_code is null order by notice_no
 	</select>
 
@@ -27,7 +72,32 @@
 	
 	<select id="selectCommunityList" resultMap="communityMap">
 		select * from view_communityMember order by commu_no
+	</select> -->
+	
+
+	<!-- 전체 공지 + 댓글 조회 -->
+	<select id="selectNoticeList" resultMap="noticeMap">
+		select * from view_noticeMemberNoticeComment where dept_code is null order by notice_no desc, notice_comment_no
 	</select>
+
+	<!-- 부서별 공지 + 댓글 조회 -->
+	<select id="selectPlanningDeptNoticeList" resultMap="noticeMap">
+		select * from view_noticeMemberNoticeComment where dept_code = 'D1' order by notice_no desc, notice_comment_no
+	</select>
+
+	<select id="selectDesignDeptNoticeList" resultMap="noticeMap">
+		select * from view_noticeMemberNoticeComment where dept_code = 'D2' order by notice_no desc, notice_comment_no
+	</select>
+
+	<select id="selectDevelopmentDeptNoticeList" resultMap="noticeMap">
+		select * from view_noticeMemberNoticeComment where dept_code  = 'D3' order by notice_no desc, notice_comment_no
+	</select>
+	
+	<!-- 게시판 + 댓글 조회 -->
+	<select id="selectCommunityList" resultMap="communityMap">
+		select * from view_commuMemberCommuComment order by commu_no desc, commu_comment_no
+	</select>
+
 	
 	<insert id="insertNotice">
 		insert into notice
@@ -76,4 +146,41 @@
 							 commu_renamed_filename = #{commuRenamedFileName}
 		where commu_no = #{commuNo}
 	</update>
+	
+
+	<!-- 공지 댓글 추가 -->
+	<insert id="insertNoticeComment">
+		insert into notice_comment
+		values(seq_notice_comment.nextval,
+			   #{noticeRef},
+			   #{noticeCommentLevel},
+			   #{noticeCommentWriter},
+			   #{noticeCommentContent},
+			   default,
+			   #{noticeCommentRef})
+	</insert>
+	
+	<!-- 공지 댓글 삭제 -->
+	<delete id="deleteNoticeComment">
+		delete from notice_comment where notice_comment_no = #{noticeCommentNo}
+	</delete>
+	
+	<!-- 게시판 댓글 추가 -->
+	<insert id="insertCommunityComment">
+		insert into community_comment
+		values(seq_community_comment.nextval,
+			   #{commuRef},
+			   #{commuCommentLevel},
+			   #{commuCommentWriter},
+			   #{commuCommentContent},
+			   default,
+			   #{commuCommentRef})
+	</insert>
+	
+	<!-- 게시판 댓글 삭제 -->
+	<delete id="deleteCommunityComment">
+		delete from community_comment where commu_comment_no = #{commuCommentNo}
+	</delete>
+	
+
 </mapper>

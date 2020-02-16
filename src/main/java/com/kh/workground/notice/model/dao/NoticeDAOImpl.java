@@ -1,6 +1,7 @@
 package com.kh.workground.notice.model.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,5 +70,27 @@ public class NoticeDAOImpl implements NoticeDAO {
 	public int updateCommunity(Community commu) {
 		return sqlSession.update("notice.updateCommunity", commu);
 	}
+	
+	@Override
+	public int insertNoticeComment(Map<String, Object> noticeCommentMap) {
+		return sqlSession.insert("notice.insertNoticeComment", noticeCommentMap);
+	}
+
+	@Override
+	public int deleteNoticeComment(int noticeCommentNo) {
+		return sqlSession.delete("notice.deleteNoticeComment", noticeCommentNo);
+	}
+
+	@Override
+	public int insertCommunityComment(Map<String, Object> communityCommentMap) {
+		return sqlSession.insert("notice.insertCommunityComment", communityCommentMap);
+	}
+
+	@Override
+	public int deleteCommunityComment(int communityCommentNo) {
+		return sqlSession.delete("notice.deleteCommunityComment", communityCommentNo);
+	}
+
 
 }
+

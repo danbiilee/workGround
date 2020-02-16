@@ -245,6 +245,19 @@
 		    <scope>provided</scope>
 		</dependency>
 		
+		<!--이메일 인증-->
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.7</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+
 		<!-- #17. 웹소켓 의존 추가 -->
 		<dependency>
 		    <groupId>org.springframework</groupId>
@@ -258,7 +271,7 @@
 		    <artifactId>spring-messaging</artifactId>
 		    <version>${org.springframework-version}</version>
 		</dependency>
-		
+
 	</dependencies>
     <build>
         <plugins>
