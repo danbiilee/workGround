@@ -83,8 +83,40 @@
       <!-- /.social-auth-links -->
 
       <p class="mb-1">
-        <a href="forgot-password.html">비밀번호를 잊으셨나요?</a>
+        <a href="forgot-password.html" data-toggle="modal" data-target="#modal-default">비밀번호를 잊으셨나요?</a>
       </p>
+        <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">비밀번호 찾기</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form action="${pageContext.request.contextPath}/member/forgotPassword.do" method="post">
+            	<div class="modal-body">
+                 <div class="input-wrapper" style="padding:2rem;">
+                 	<div id="inputDiv">
+	                    <label for="chk-id">아이디</label>
+	                    <p style="font-size: .8rem; padding-left: .5rem;">비밀번호를 찾고자 하는 아이디를 입력해 주세요.</p>
+	                    <input type="text" id="chk-id" name="memberId" class="form-control">                     
+                 	</div>
+                 	<div id="successDiv" style="text-align: center"></div>
+                 	<div id="failDiv"></div>
+                 </div>
+            	</div>
+	            <div class="modal-footer justify-content-between">
+	              <button type="button" class="btn btn-default" data-dismiss="modal" id="closeButton">Close</button>
+	              <button type="submit" class="btn btn-primary" id="nextButton">다음</button>
+	            </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
     </div>
     <!-- /.login-card-body -->
     <div class="col-sm-6" style="display: inline-block; float: right; padding: 40px; background: rgb(220, 234, 247); box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2); height: 23rem;">
@@ -114,7 +146,41 @@
 <script src="${pageContext.request.contextPath}/resources/js/adminlte.min.js"></script>
 
 <script>
+/* function next(){
+	var memberId = $("#chk-id").val();
+	console.log(memberId);
+	$.ajax({
+		url: "${pageContext.request.contextPath}/member/forgotPassword.do?memberId="+memberId,
+		type: "get",
+		dataType: "json",
+		contentType: "application/json; charset=utf-8", //@RequestBody 필수속성
+		success: data=>{
+			console.log(data);
+			$("#inputDiv").css("display", "none");
+			$("#chk-id").val('');
+			$("#successDiv").css("display", "block");
+			let html = "<div style='margin-bottom: 1.3rem;'><i class='fas fa-check-circle' style='font-size: 2rem;color: #007bff;'></i></div>";
+			html += "<p style='margin-bottom: 1.6rem;'>임시비밀번호가 이메일로 전송되었습니다.</p>";
+			$("#successDiv").append(html);
+			$("#nextButton").css("display", "none");
+		},
+		error: (xhr, status, error)=>{
+			console.log("ajax실패!!!", xhr, status, error);
+		}
+	});
+}
 
+function close(){
+	console.log("zz");
+	$("#inputDiv").css("display", "block");
+	$("#successDiv").css("display", "none");
+}
+
+$("#closeButton").click(function(){
+	$("#inputDiv").css("display", "block");
+	$("#successDiv").css("display", "none");
+	$("#nextButton").css("display", "block");
+}); */
 </script>
 </body>
 </html>

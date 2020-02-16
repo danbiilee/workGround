@@ -37,10 +37,10 @@ div.modal-dialog{max-width: 50%;}
 .noticeView, .deptNoticeView, .boardView{margin-bottom: 1rem;}
 .user-block{float: none;}
 .view-img{width: 100%; display: block; margin: 0 auto;}
-.deptNoticeView>.view-title, .boardView>.view-title{margin-bottom: .5rem;}
+.noticeView>.view-title, .deptNoticeView>.view-title, .boardView>.view-title{margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid lightgray;}
 p.view-title{font-size: 1.2rem; font-weight: bold;}
 p.view-content{margin: 1rem 1rem 2.5rem;}
-.comment-count{margin-bottom: 0.5rem; color: rgb(93, 93, 93);}
+.comment-count{margin: 2.5rem 0 0.5rem; color: rgb(93, 93, 93);}
 .comment-text-area{display: inline-block; width: 90%; height: 2rem; margin-right: .3rem;}
 .comment-reply{border: 0; background: darkgray; border-radius: 3px; margin-right: .3rem; color: white;}
 .comment-delete{border: 0; background: darkgray; border-radius: 3px; color: white;}
@@ -55,9 +55,35 @@ p.view-content{margin: 1rem 1rem 2.5rem;}
 
 .fname{background: white; position: relative; bottom: 1.5rem; left: 4.6rem; padding-right:10rem;}
 .deleteFileSpan{position: absolute; left: 2.4rem; bottom: 0.8rem;}
+/* 답글 텍스트 */
+form.comment-level2{margin: 1rem 0 1rem 7rem;}
+.comment-submit-level2{border: 0; background: darkgray; border-radius: 3px; margin-right: .3rem; color: white; height: 2rem; width: 2.5rem}
+.comment-submit-level2:hover{background: #007bff;}
+div.level-2-border{border-bottom: 1px solid #e9ecef;}
+
 </style>
 
 <script>
+$(()=>{
+	
+	$("[name=updateFile]").change(function(){
+		console.log($(this).val());
+		console.log($(".fname"));
+		var filename = $(this).val();
+		if($(this).val() != ""){
+			console.log("zz");
+	 		//$(".fname").hide();
+	 		$(".fname").html(filename.substring(filename.lastIndexOf("\\")+1));
+			$("#delFileChk").hide().next().hide();
+		}else{
+			$(".fname").show();
+			console.log("aa");
+			$("#delFileChk").show().next().show();
+		}
+	})
+	
+});
+
 $(function(){
   // Summernote
   $('.textarea').summernote();
@@ -84,31 +110,64 @@ function deleteChk(noticeNo){
 		location.href = "${pageContext.request.contextPath}/notice/deleteNotice.do?noticeNo="+noticeNo;
 	}
 }
+
 function deleteChkforCommu(commuNo){
 	var result = confirm("게시글을 삭제하시겠습니까?"); 
 	if(result == true){
 		location.href = "${pageContext.request.contextPath}/notice/deleteCommunity.do?commuNo="+commuNo;
 	}
 }
+
+//답글 클릭 시
+/* function addLevel2(level1_id){
+	var area_level1 = level1_id;
+	alert(area_level1);
+} */
+
+
+//공지 댓글 삭제
+function deleteNoticeComment(noticeCommentNo){
+	if(!confirm("정말 삭제하시겠습니까?"))
+		return;
+	location.href = "${pageContext.request.contextPath}/notice/noticeCommentDelete.do?noticeCommentNo="+noticeCommentNo;
+}
+
+//게시판 댓글 삭제
+function deleteCommunityComment(communityCommentNo){
+	if(!confirm("정말 삭제하시겠습니까?"))
+		return;
+	location.href = "${pageContext.request.contextPath}/community/communityCommentDelete.do?communityCommentNo="+communityCommentNo;
+
+}
+
+//댓글 유효성 검사
+function checkComment(commentContent){
+	if(commentContent.trim() == 0){
+		alert("댓글을 입력하지 않으셨습니다!");
+		return false;
+	}
+	return true;
+} 
+
 </script>
+
 
 <!-- #############주현 할 일############
 [할 일]
+#댓글 -> ajax? / 대댓글?#
 @ - 관리자: 모든 게시물 수정/삭제 가능?
-- 게시글 작성자 기본 프로필
-- 수정 모달창 forEach / 카드 안에 수정모달창 index주기
 - 카드 내용 ...
-- 댓글
-- 댓글 작성자  프로필 없을 경우 기본 이미지
-- 관리자 기획부가 맞는 건지?
 - 이미지 없을 때 내용 가운데로?
 - DB 내용 정리
 - 상세보기 작성자 클릭 시 프로필 이동?
 @ - **부서별공지, 자유게시판 작성자 이름으로
 @ - 슬라이드 바 개수 맞추기!!
-- 공지 수정 창 추가: #updateDeptNoticeModal${deptnvs.count}
-- 바가 헤더 앞으로 나옴
+- 바가 헤더 앞으로 나옴 / 카드 호버시 안 움직임
+@- 바 누르는 거 이상함
  -->
+ 
+ <!-- @@
+  공지 이름 / 아이콘 바꾸기  / 예외처리 -->
 
 <!-- 효정 할 일
 -수정 시, 기존파일 보이게 하기
@@ -169,7 +228,7 @@ function deleteChkforCommu(commuNo){
           	<!-- barCnt: 바개수 올림 (공지 개수/4 올림) -->
 			<c:set var="noticeBarCnt" value="${fn:length(noticeList)/4}"/>
           	<c:forEach var="i" begin="1" end="${noticeBarCnt+(1-(noticeBarCnt%1))%1-1}" step="1">
-	            <li data-target="#notice_indicators" data-slide-to="i"></li>
+	            <li data-target="#notice_indicators" data-slide-to="${i}"></li>
           	</c:forEach>
           </ol>
           <div class="carousel-inner">          
@@ -193,7 +252,10 @@ function deleteChkforCommu(commuNo){
    	              </div>
    	            </div>
    	            <div class="card-body" data-toggle="modal" data-target="#noticeViewModal${nvs.count}">
-   	              <img src="${pageContext.request.contextPath}/resources/upload/notice/${n.noticeRenamedFileName}" class="card-img-top" onerror="this.style.display='none'">
+					<c:set var="nFileNameCnt" value="${fn:trim(n.noticeRenamedFileName)}"/>
+			   	    <c:if test="${n.noticeRenamedFileName != null && fn:length(nFileNameCnt) != 0}">
+	   	              <img src="${pageContext.request.contextPath}/resources/upload/notice/${n.noticeRenamedFileName}" class="card-img-top">
+	   	            </c:if>
 	   	              <h5 class="card-title">${n.noticeTitle }</h5>
 	   	              <p class="card-text">${n.noticeContent }</p>
    	            </div>
@@ -235,7 +297,7 @@ function deleteChkforCommu(commuNo){
           	<!-- barCnt: 바개수 올림 (공지 개수/4 올림) -->
 			<c:set var="deptNoticeBarCnt" value="${fn:length(deptNoticeList)/4}"/>
           	<c:forEach var="i" begin="1" end="${deptNoticeBarCnt+(1-(deptNoticeBarCnt%1))%1-1}" step="1">
-	            <li data-target="#myDeptNotice_indicators" data-slide-to="i"></li>
+	            <li data-target="#myDeptNotice_indicators" data-slide-to="${i}"></li>
           	</c:forEach>
           </ol>
           <div class="carousel-inner">
@@ -258,7 +320,10 @@ function deleteChkforCommu(commuNo){
 	   	              </div>
 	   	            </div>
 	   	            <div class="card-body" data-toggle="modal" data-target="#myDeptNoticeViewModal${deptnvs.count}">
-	   	              <img src="${pageContext.request.contextPath}/resources/upload/notice/${deptn.noticeRenamedFileName}" class="card-img-top" onerror="this.style.display='none'">
+	   	           	  <c:set var="deptnFileNameCnt" value="${fn:trim(deptn.noticeRenamedFileName)}"/>
+		   	          <c:if test="${deptn.noticeRenamedFileName != null && fn:length(deptnFileNameCnt) != 0}">
+		   	            <img src="${pageContext.request.contextPath}/resources/upload/notice/${deptn.noticeRenamedFileName}" class="card-img-top">
+					  </c:if>
 	   	              <h5 class="card-title">${deptn.noticeTitle }</h5>
 	   	              <p class="card-text">${deptn.noticeContent }</p>
 	   	            </div>
@@ -296,7 +361,7 @@ function deleteChkforCommu(commuNo){
           	<!-- barCnt: 바개수 올림 (공지 개수/4 올림) -->
 			<c:set var="boardBarCnt" value="${fn:length(communityList)/4}"/>
           	<c:forEach var="i" begin="1" end="${boardBarCnt+(1-(boardBarCnt%1))%1-1}" step="1">
-	            <li data-target="#board_indicators" data-slide-to="i"></li>
+	            <li data-target="#board_indicators" data-slide-to="${i}"></li>
           	</c:forEach>
           </ol>
           <div class="carousel-inner">
@@ -320,7 +385,10 @@ function deleteChkforCommu(commuNo){
 	   	              </div>
 	   	            </div>
 	   	            <div class="card-body" data-toggle="modal" data-target="#boardViewModal${cvs.count}">
-	   	              <img src="${pageContext.request.contextPath}/resources/upload/community/${c.commuRenamedFileName}" class="card-img-top" onerror="this.style.display='none'">
+	   	           	  <c:set var="cFileNameCnt" value="${fn:trim(c.commuRenamedFileName)}"/>
+		   	          <c:if test="${c.commuRenamedFileName != null && fn:length(cFileNameCnt) != 0}">
+		   	            <img src="${pageContext.request.contextPath}/resources/upload/community/${c.commuRenamedFileName}" class="card-img-top">
+					  </c:if>
 	   	              <h5 class="card-title">${c.commuTitle }</h5>
 	   	              <p class="card-text">${c.commuContent }</p>
 	   	            </div>
@@ -345,563 +413,6 @@ function deleteChkforCommu(commuNo){
 </div>
 <!-- /.content-wrapper -->
 
-<!-- 전체 공지 상세보기 모달 -->
-<c:forEach items="${noticeList}" var="n" varStatus="nvs">
-	<div class="modal fade" id="noticeViewModal${nvs.count}" tabindex="-1" role="dialog" aria-labelledby="noticeViewModalLabel${nvs.count }" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title"><i class="fas fa-exclamation-circle"></i>&nbsp; 전체 공지</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-	        <div class="noticeView">
-	          <p class="view-title">${n.noticeTitle}</p>
-	          <div style="font-size: .8rem; color: gray; margin-bottom: .5rem;">게시일 ${n.noticeDate}</div>
-	            <div class="view-body">
-	              <img class="view-img" src="${pageContext.request.contextPath}/resources/upload/notice/${n.noticeRenamedFileName}" alt="noticeViewPhoto" onerror="this.style.display='none'">
-	              <p class="view-content">${n.noticeContent}</p>
-	            </div>
-	            <!-- /.view-body -->
-	            <div class="comment-count"><i class="fas fa-comments"></i>&nbsp; 댓글 <span>(2)</span></div>
-	            <div class="card-footer card-comments">
-	              <div class="card-comment">
-	                <img class="img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/고양이.jpg" alt="User Image">
-	                <div class="comment-text">
-	                  <span class="username">이단비<span class="text-muted float-right">2020-01-25</span></span>
-	                  <span>네! 알겠습니다!</span>
-	                  <button class="comment-delete float-right">삭제</button>
-	                  <button class="comment-reply float-right">답글</button>
-	                </div>
-	              </div>
-	              <div class="card-comment comment-level2">
-	                <img class="img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/차은우.jpg" alt="User Image">
-	                <div class="comment-text">
-	                  <span class="username">유혜민<span class="text-muted float-right">2020-01-26</span></span>
-	                  <span>넵! 알겠습니당</span>
-	                  <button class="comment-delete float-right">삭제</button>
-	                  <button class="comment-reply float-right">답글</button>
-	                </div>
-	              </div>
-	            </div>
-	            <div class="card-footer">
-	              <form action="#" method="post">
-	                <img class="img-fluid img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/${memberLoggedIn.renamedFileName == null?'기본프로필.jpg':memberLoggedIn.renamedFileName}">
-	                <div class="img-push">
-	                  <input type="text" class="form-control form-control-sm comment-text-area" placeholder="댓글을 입력하세요.">
-	                  <input class="comment-submit" type="submit" value="등록">
-	                </div>
-	              </form>
-	            </div> <!-- /.card-footer -->
-	          </div> <!-- /.card -->
-	      </div>
-	    </div>
-	  </div>
-	</div>
-</c:forEach>
 
-<!-- 부서별 공지 상세보기 모달 -->
-<c:forEach items="${deptNoticeList}" var="deptn" varStatus="deptnvs">
-	<div class="modal fade" id="myDeptNoticeViewModal${deptnvs.count}" tabindex="-1" role="dialog" aria-labelledby="myDeptNoticeViewModalLabel${deptnvs.count}" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title"><span id="myDept"><i class="fas fa-user"></i> &nbsp;${memberLoggedIn.deptCode=='D1'?"기획":memberLoggedIn.deptCode=='D2'?"디자인":"개발" }</span>&nbsp; 부서별 공지</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-	        <div class="deptNoticeView">
-	          <p class="view-title">${deptn.noticeTitle}</p>
-	          <div class="user-block" style="margin-bottom: .5rem;">
-	            <img class="img-circle" src="${pageContext.request.contextPath}/resources/img/${deptn.renamedFileName == null?'기본프로필.jpg':deptn.renamedFileName}" alt="User Image">
-	            <span class="username"><a href="#" style="color: black;">작성자 ${deptn.memberName}</a></span>
-	            <span class="description">게시일 ${deptn.noticeDate}</span>
-	          </div>
-	            <div class="view-body">
-	              <img class="view-img" src="${pageContext.request.contextPath}/resources/upload/notice/${deptn.noticeRenamedFileName}" onerror="this.style.display='none'" alt="Photo">
-	              <p class="view-content">${deptn.noticeContent}</p>
-	            </div>
-	            <!-- /.view-body -->
-	            <div class="comment-count"><i class="fas fa-comments"></i>&nbsp; 댓글 <span>(2)</span></div>
-	            <div class="card-footer card-comments">
-	              <div class="card-comment">
-	                <img class="img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/재현01.jpg" alt="User Image">
-	                <div class="comment-text">
-	                  <span class="username">이주현<span class="text-muted float-right">2020-01-25</span></span>
-	                  <span>네넵! 확인 완료!</span>
-	                  <button class="comment-delete float-right">삭제</button>
-	                  <button class="comment-reply float-right">답글</button>
-	                </div>
-	              </div>
-	              <div class="card-comment">
-	                <img class="img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/우식01.jpeg" alt="User Image">
-	                <div class="comment-text">
-	                  <span class="username">김효정<span class="text-muted float-right">2020-01-26</span></span>
-	                  <span>넵 확인했습니다!</span>
-	                  <button class="comment-delete float-right">삭제</button>
-	                  <button class="comment-reply float-right">답글</button>
-	                </div>
-	              </div>
-	            </div>
-	            <div class="card-footer">
-	              <form action="#" method="post">
-	                <img class="img-fluid img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/${memberLoggedIn.renamedFileName == null?'기본프로필.jpg':memberLoggedIn.renamedFileName}">
-	                <div class="img-push">
-	                  <input type="text" class="form-control form-control-sm comment-text-area" placeholder="댓글을 입력하세요.">
-	                  <input class="comment-submit" type="submit" value="등록">
-	                </div>
-	              </form>
-	            </div> <!-- /.card-footer -->
-	          </div> <!-- /.card -->
-	      </div>
-	    </div>
-	  </div>
-	</div>
-</c:forEach>
-
-
-<!-- 게시판 상세보기 모달 -->
-<c:forEach items="${communityList}" var="c" varStatus="cvs">
-	<div class="modal fade" id="boardViewModal${cvs.count}" tabindex="-1" role="dialog" aria-labelledby="boardModalLabel${cvs.count }" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title"><i class="fas fa-sticky-note"></i>&nbsp; 자유게시판</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-	        <div class="boardView">
-	          <p class="view-title">${c.commuTitle }</p>
-	          <div class="user-block" style="margin-bottom: .5rem;">
-	          	<img class="img-circle" src="${pageContext.request.contextPath}/resources/img/${c.renamedFileName == null?'기본프로필.jpg':c.renamedFileName}" alt="User Image">
-	            <span class="username"><a href="#" style="color: black;">작성자 ${c.memberName }</a></span>
-	            <span class="description">게시일 ${c.commuDate }</span>
-	          </div>
-	            <div class="view-body">
-	              <img class="view-img" src="${pageContext.request.contextPath}/resources/upload/community/${c.commuRenamedFileName}" alt="Photo" onerror="this.style.display='none'">
-	              <p class="view-content">${c.commuContent }</p>
-	            </div>
-	            <!-- /.view-body -->
-	            <div class="comment-count"><i class="fas fa-comments"></i>&nbsp; 댓글 <span>(3)</span></div>
-	            <div class="card-footer card-comments">
-	              <div class="card-comment">
-	                <img class="img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/우식01.jpeg" alt="User Image">
-	                <div class="comment-text">
-	                  <span class="username">김효정<span class="text-muted float-right">2020-01-26</span></span>
-	                  <span>오오 감사합니당</span>
-	                  <button class="comment-delete float-right">삭제</button>
-	                  <button class="comment-reply float-right">답글</button>
-	                </div>
-	              </div>
-	              <div class="card-comment">
-	                <img class="img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/박보검.png" alt="User Image">
-	                <div class="comment-text">
-	                  <span class="username">주보라<span class="text-muted float-right">2020-01-27</span></span>
-	                  <span>괜찮은데요??</span>
-	                  <button class="comment-delete float-right">삭제</button>
-	                  <button class="comment-reply float-right">답글</button>
-	                </div>
-	              </div>
-	              <div class="card-comment comment-level2">
-	                <img class="img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/재현.jpg" alt="User Image">
-	                <div class="comment-text">
-	                  <span class="username">이소현<span class="text-muted float-right">2020-01-27</span></span>
-	                  <span>훨씬 편하네요~</span>
-	                  <button class="comment-delete float-right">삭제</button>
-	                  <button class="comment-reply float-right">답글</button>
-	                </div>
-	              </div>
-	            </div>
-	            <div class="card-footer">
-	              <form action="#" method="post">
-	                <img class="img-fluid img-circle img-sm" src="${pageContext.request.contextPath}/resources/img/${memberLoggedIn.renamedFileName == null?'기본프로필.jpg':memberLoggedIn.renamedFileName}">
-	                <div class="img-push">
-	                  <input type="text" class="form-control form-control-sm comment-text-area" placeholder="댓글을 입력하세요.">
-	                  <input class="comment-submit" type="submit" value="등록">
-	                </div>
-	              </form>
-	            </div> <!-- /.card-footer -->
-	          </div> <!-- /.card -->
-	      </div>
-	    </div>
-	  </div>
-	</div>
-</c:forEach>
-
-<!-- 공지 추가 모달 -->
-<!-- 관리자: 전체/부서별 공지 작성 가능 -->
-<!-- 부서별: 자기 부서는 selected / 나머지 부서 disabled -->
-<div class="modal fade" id="addNoticeModal" tabindex="-1" role="dialog" aria-labelledby="addNoticeModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-edit"></i>&nbsp; 공지 작성</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form action="${pageContext.request.contextPath}/notice/noticeFormEnd.do"
-      		method="post"
-      		enctype="multipart/form-data">
-        <div class="modal-body">
-          <div class="addNotice" style="padding: 1rem;">
-            <div class="form-group">
-              <label for="inputDept">부서</label>
-              <select class="form-control custom-select" name="deptCode">
-                 <option value="all" selected>전체</option>
-				<option value="D1">기획부</option>
-                <option value="D2">디자인부</option>
-                <option value="D3">개발부</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="inputName">공지 제목</label>
-              <input type="text" id="inputName" name="noticeTitle" class="form-control" required>
-            </div>
-            <div class="form-group" style="display:none;">
-              <label for="inputName">글쓴이</label>
-              <input type="text" id="inputName" name="noticeWriter" value="${memberLoggedIn.memberId}" class="form-control">
-            </div>
-            <!-- <div class="form-group">
-              <label for="inputDescription">공지 카드 내용</label>
-              <input type="text" class="form-control" maxlength="35" placeholder="35자 이내로 입력하세요.">
-            </div> -->
-            <div class="form-group">
-              <label for="inputDescription">공지 내용</label>
-              <textarea class="textarea" name="noticeContent" required></textarea>
-            </div>
-            <div class="form-group">
-              <label for="exampleFormControlFile1">파일 첨부</label>
-              <input type="file" class="form-control-file" id="exampleFormControlFile1" name="upFile">
-            </div>
-          </div><!-- /.card-body -->
-        </div> <!--/.modal-body-->
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-outline-success">작성</button>
-          <button type="button" class="btn btn-outline-success" data-dismiss="modal">취소</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- 내가 속한 부서의 공지 추가 모달 -->
-<!-- 관리자: 전체/부서별 공지 작성 가능 -->
-<!-- 부서별: 자기 부서는 selected / 나머지 부서 disabled -->
-<div class="modal fade" id="addNoticeForDeptModal" tabindex="-1" role="dialog" aria-labelledby="addNoticeForDeptModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-edit"></i>&nbsp; 공지 작성</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form action="${pageContext.request.contextPath}/notice/noticeFormEnd.do"
-      		method="post"
-      		enctype="multipart/form-data">
-        <div class="modal-body">
-          <div class="addNotice" style="padding: 1rem;">
-            <div class="form-group">
-              <label for="inputDept">부서</label>
-              <select class="form-control custom-select" name="deptCode" ${memberLoggedIn.jobTitle=='관리자'?'"style=display:block;"':"style=display:none;"}>
-                <option value="all" selected>전체</option>
-				<option value="D1" ${memberLoggedIn.deptCode=='D1'?'selected="selected"':''}>기획부</option>
-                <option value="D2" ${memberLoggedIn.deptCode=='D2'?'selected="selected"':''}>디자인부</option>
-                <option value="D3" ${memberLoggedIn.deptCode=='D3'?'selected="selected"':''}>개발부</option>
-              </select>
-              <input type="text" class="form-control"
-              		 ${memberLoggedIn.jobTitle=='관리자'?"style=display:none;":"style=display:block;"} 
-              		 value="${memberLoggedIn.deptCode=='D1'?'기획부':memberLoggedIn.deptCode=='D2'?'디자인부':'개발부'}"
-              		 readonly/>
-            </div>
-            <div class="form-group">
-              <label for="inputName">공지 제목</label>
-              <input type="text" id="inputName" name="noticeTitle" class="form-control" required>
-            </div>
-            <div class="form-group" style="display:none;">
-              <label for="inputWriter">글쓴이</label>
-              <input type="text" id="inputName" name="noticeWriter" value="${memberLoggedIn.memberId}" class="form-control">
-            </div>
-            <!-- <div class="form-group">
-              <label for="inputDescription">공지 카드 내용</label>
-              <input type="text" class="form-control" maxlength="35" placeholder="35자 이내로 입력하세요.">
-            </div> -->
-            <div class="form-group">
-              <label for="inputDescription">공지 내용</label>
-              <textarea class="textarea" name="noticeContent" required></textarea>
-            </div>
-            <div class="form-group">
-              <label for="exampleFormControlFile1">파일 첨부</label>
-              <input type="file" class="form-control-file" id="exampleFormControlFile1" name="upFile">
-            </div>
-          </div><!-- /.card-body -->
-        </div> <!--/.modal-body-->
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-outline-success">작성</button>
-          <button type="button" class="btn btn-outline-success" data-dismiss="modal">취소</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- 게시판 추가 모달 -->
-<div class="modal fade" id="addBoardModal" tabindex="-1" role="dialog" aria-labelledby="addBoardModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-edit"></i>&nbsp; 게시글 작성</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <form action="${pageContext.request.contextPath}/notice/communityFormEnd.do"
-      		method="post"
-      		enctype="multipart/form-data">
-          <div class="modal-body">
-              <div class="addNotice" style="padding: 1rem;">
-                <div class="form-group">
-                  <label for="inputName">게시글 제목</label>
-                  <input type="text" id="inputName" name="commuTitle" class="form-control" maxlength="15" placeholder="15자 이내로 입력하세요." required>
-                </div>
-                <div class="form-group" style="display:none;">
-             		<label for="inputWriter">글쓴이</label>
-              		<input type="text" id="inputName" name="commuWriter" value="${memberLoggedIn.memberId}" class="form-control">
-            	</div>
-                <!-- <div class="form-group">
-                  <label for="inputDescription">게시글 카드 내용</label>
-                  <input type="text" class="form-control" maxlength="35" placeholder="35자 이내로 입력하세요.">
-                </div> -->
-                <div class="form-group">
-                  <label for="inputDescription">게시글 내용</label>
-                  <textarea class="textarea" name="commuContent" required></textarea>
-                </div>
-                <div class="form-group">
-                  <label for="exampleFormControlFile1">파일 첨부</label>
-                  <input type="file" class="form-control-file" id="exampleFormControlFile1" name="upFile">
-                </div>
-              </div><!-- /.card-body -->
-          </div> <!--/.modal-body-->
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-outline-success">작성</button>
-            <button type="button" class="btn btn-outline-success" data-dismiss="modal">취소</button>
-          </div>
-        </form>
-      </div>
-    </div>
-</div>
-
-<!-- 공지수정 모달 -->
-<!-- 관리자: 전체공지만 수정 / 부서별공지는 내가속한 부서에서 수정 -->
-<!-- 부서별 옵션: 내가속한 부서만 selected 그 외엔 disabled -->
-<c:forEach items="${noticeList}" var="n" varStatus="nvs">
-	<div class="modal fade" id="updateNoticeModal${nvs.count}" tabindex="-1" role="dialog" aria-labelledby="updateNoticeModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title"><i class="fas fa-edit"></i>&nbsp; 공지 수정</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <form action="${pageContext.request.contextPath}/notice/updateNotice.do?noticeNo=${n.noticeNo}"
-      			method="post"
-      			enctype="multipart/form-data">
-	        <div class="modal-body">
-	            <div class="addNotice" style="padding: 1rem;">
-	              <div class="form-group">
-	                <label for="inputDept">부서</label>
-	                <select class="form-control custom-select" name="deptCode">
-	                 	<option value="all" selected>전체</option>
-						<option value="D1">기획부</option>
-		                <option value="D2">디자인부</option>
-		                <option value="D3">개발부</option>
-              	  	</select>
-	              </div>
-	              <div class="form-group">
-	                <label for="inputName">공지 제목</label>
-	                <input type="text" id="inputName" class="form-control" value="${n.noticeTitle}" name="noticeTitle" required>
-	              </div>
-	              <div class="form-group" style="display:none;">
-		              <label for="inputWriter">글쓴이</label>
-		              <input type="text" id="inputName" name="noticeWriter" value="${memberLoggedIn.memberId}" class="form-control">
-            	  </div>
-	              <!-- <div class="form-group">
-	                <label for="inputDescription">공지 카드 내용</label>
-	                <input type="text" class="form-control" maxlength="35" placeholder="35자 이내로 입력하세요." value="파이널 프로젝트가 본격적으로 시작되었습니다! 다들 화이팅!">
-	              </div> -->
-	              <div class="form-group">
-	                <label for="inputDescription">공지 내용</label>
-	                <textarea class="textarea" name="noticeContent" required>${n.noticeContent}</textarea>
-	              </div>
-	              <div class="form-group">
-	                <label for="exampleFormControlFile1">파일 첨부</label>
-	                <input type="file" class="form-control-file" id="exampleFormControlFile1" name="updateFile">
-	                <span class="fname">${n.noticeOriginalFileName!=null?n.noticeOriginalFileName:""}</span>
-	                <input type="hidden" name="noticeOriginalFileName" value="${n.noticeOriginalFileName!=null?n.noticeOriginalFileName:""} "/>
-	                <input type="hidden" name="noticeRenamedFileName" value="${n.noticeRenamedFileName!=null?n.noticeRenamedFileName:""} "/>
-	               	<c:if test="${n.noticeOriginalFileName!=null}">
-	               		<span class="deleteFileSpan">
-		               		<input type="checkbox" name="delFileChk" id="delFileChk" />
-		               		<label for="delFileChk">첨부파일삭제</label>	               		
-	               		</span>
-	               	</c:if>
-	              </div>
-	            </div><!-- /.card-body -->
-	        </div> <!--/.modal-body-->
-	        <div class="modal-footer">
-	          <button type="submit" class="btn btn-outline-success">수정</button>
-	          <button type="button" class="btn btn-outline-success" data-dismiss="modal">취소</button>
-	        </div>
-	      </form>
-	    </div>
-	  </div>
-	</div>
-</c:forEach>
-<!-- 내가 속한 부서 공지 수정 모달 -->
-<c:forEach items="${deptNoticeList}" var="deptn" varStatus="deptnvs">
-	<div class="modal fade" id="updateDeptNoticeModal${deptnvs.count}" tabindex="-1" role="dialog" aria-labelledby="updateNoticeModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title"><i class="fas fa-edit"></i>&nbsp; 공지 수정</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <form action="${pageContext.request.contextPath}/notice/updateNotice.do?noticeNo=${deptn.noticeNo}"
-      			method="post"
-      			enctype="multipart/form-data">
-	        <div class="modal-body">
-	            <div class="addNotice" style="padding: 1rem;">
-	              <div class="form-group">
-		              <label for="inputDept">부서</label>
-		              <select class="form-control custom-select" name="deptCode" ${memberLoggedIn.jobTitle=='관리자'?'"style=display:block;"':"style=display:none;"}>
-		                <option value="all" selected>전체</option>
-						<option value="D1" ${memberLoggedIn.deptCode=='D1'?'selected="selected"':''}>기획부</option>
-		                <option value="D2" ${memberLoggedIn.deptCode=='D2'?'selected="selected"':''}>디자인부</option>
-		                <option value="D3" ${memberLoggedIn.deptCode=='D3'?'selected="selected"':''}>개발부</option>
-		              </select>
-              		<input type="text" class="form-control"
-		              	   ${memberLoggedIn.jobTitle=='관리자'?"style=display:none;":"style=display:block;"} 
-		              	   value="${memberLoggedIn.deptCode=='D1'?'기획부':memberLoggedIn.deptCode=='D2'?'디자인부':'개발부'}"
-		              	   readonly/>
-            	 </div>
-	              <div class="form-group">
-	                <label for="inputName">공지 제목</label>
-	                <input type="text" id="inputName" class="form-control" value="${deptn.noticeTitle}" name="noticeTitle" required>
-	              </div>
-	              <div class="form-group" style="display:none;">
-		              <label for="inputWriter">글쓴이</label>
-		              <input type="text" id="inputName" name="noticeWriter" value="${memberLoggedIn.memberId}" class="form-control">
-            	  </div>
-	              <!-- <div class="form-group">
-	                <label for="inputDescription">공지 카드 내용</label>
-	                <input type="text" class="form-control" maxlength="35" placeholder="35자 이내로 입력하세요." value="파이널 프로젝트가 본격적으로 시작되었습니다! 다들 화이팅!">
-	              </div> -->
-	              <div class="form-group">
-	                <label for="inputDescription">공지 내용</label>
-	                <textarea class="textarea" name="noticeContent" required>${deptn.noticeContent}</textarea>
-	              </div>
-	              <div class="form-group">
-	                <label for="exampleFormControlFile1">파일 첨부</label>
-	                <input type="file" class="form-control-file" id="exampleFormControlFile1" name="updateFile">
-	                <span class="fname">${deptn.noticeOriginalFileName!=null?deptn.noticeOriginalFileName:""}</span>
-	                <input type="hidden" name="noticeOriginalFileName" value="${deptn.noticeOriginalFileName!=null?deptn.noticeOriginalFileName:""} "/>
-	                <input type="hidden" name="noticeRenamedFileName" value="${deptn.noticeRenamedFileName!=null?deptn.noticeRenamedFileName:""} "/>
-	               	<c:if test="${deptn.noticeOriginalFileName!=null}">
-	               		<span class="deleteFileSpan">
-		               		<input type="checkbox" name="delFileChk" id="delFileChk" />
-		               		<label for="delFileChk">첨부파일삭제</label>	               		
-	               		</span>
-	               	</c:if>
-	              </div>
-	            </div><!-- /.card-body -->
-	        </div> <!--/.modal-body-->
-	        <div class="modal-footer">
-	          <button type="submit" class="btn btn-outline-success">수정</button>
-	          <button type="button" class="btn btn-outline-success" data-dismiss="modal">취소</button>
-	        </div>
-	      </form>
-	    </div>
-	  </div>
-	</div>
-</c:forEach>
-<!-- 게시판 수정 모달 -->
-<c:forEach items="${communityList}" var="c" varStatus="cvs">
-	<div class="modal fade" id="updateCommuModal${cvs.count}" tabindex="-1" role="dialog" aria-labelledby="updateBoardModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title"><i class="fas fa-edit"></i>&nbsp; 게시글 수정</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	       <form action="${pageContext.request.contextPath}/notice/updateCommunity.do?commuNo=${c.commuNo}"
-      			method="post"
-      			enctype="multipart/form-data">
-	        <div class="modal-body">
-	            <div class="addNotice" style="padding: 1rem;">
-	              <div class="form-group">
-                  	<label for="inputName">게시글 제목</label>
-                  	<input type="text" id="inputName" name="commuTitle" value="${c.commuTitle}" class="form-control" maxlength="15" placeholder="15자 이내로 입력하세요." required>
-                  </div>
-                  <div class="form-group" style="display:none;">
-             		<label for="inputWriter">글쓴이</label>
-              		<input type="text" id="inputName" name="commuWriter" value="${memberLoggedIn.memberId}" class="form-control">
-            	  </div>
-                  <div class="form-group">
-                    <label for="inputDescription">게시글 내용</label>
-                    <textarea class="textarea" name="commuContent" required>${c.commuContent}</textarea>
-                  </div>
-                  <div class="form-group">
-                    <label for="exampleFormControlFile1">파일 첨부</label>
-                    <input type="file" class="form-control-file" id="exampleFormControlFile1" name="updateFile">
-	                <span class="fname">${c.commuOriginalFileName!=null?c.commuOriginalFileName:""}</span>
-	                <input type="hidden" name="commuOriginalFileName" value="${c.commuOriginalFileName!=null?c.commuOriginalFileName:""} "/>
-	                <input type="hidden" name="commuRenamedFileName" value="${c.commuRenamedFileName!=null?c.commuRenamedFileName:""} "/>
-	               	<c:if test="${c.commuOriginalFileName!=null}">
-	               		<span class="deleteFileSpan">
-		               		<input type="checkbox" name="delFileChk" id="delFileChk" />
-		               		<label for="delFileChk">첨부파일삭제</label>	               		
-	               		</span>
-	               	</c:if>
-                  </div>
-	            </div><!-- /.card-body -->
-	        </div> <!--/.modal-body-->
-	        <div class="modal-footer">
-	          <button type="submit" class="btn btn-outline-success">수정</button>
-	          <button type="button" class="btn btn-outline-success" data-dismiss="modal">취소</button>
-	        </div>
-	      </form>
-	    </div>
-	  </div>
-	</div>
-</c:forEach>
-
-<script>
-$("[name=updateFile]").change(function(){
-	console.log($(this).val());
-	console.log($(".fname"));
-	var filename = $(this).val();
-	if($(this).val() != ""){
-		console.log("zz");
- 		//$(".fname").hide();
- 		$(".fname").html(filename.substring(filename.lastIndexOf("\\")+1));
-		$("#delFileChk").hide().next().hide();
-	}else{
-		$(".fname").show();
-		console.log("aa");
-		$("#delFileChk").show().next().show();
-	}
-})
-</script>
-
+<jsp:include page="/WEB-INF/views/notice/noticeModal.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/common/footer.jsp"></jsp:include>
